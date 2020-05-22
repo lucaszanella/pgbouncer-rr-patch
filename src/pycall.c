@@ -64,7 +64,7 @@ char *pycall(PgSocket *client, char *username, char *query_str, char *py_file,
 	Py_Initialize();
 
 	/* Load python module */
-	pName = PyString_FromString(py_module);
+	pName = PyUnicode_FromString(py_module);
 	if (pName == NULL) {
 		slog_error(client, "Python module <%s> did not load", py_module);
 		goto finish;
@@ -95,13 +95,13 @@ char *pycall(PgSocket *client, char *username, char *query_str, char *py_file,
 		slog_error(client, "Python module <%s>: out of memory", py_module);
 		goto finish;
 	}
-	pValue = PyString_FromString(username);
+	pValue = PyUnicode_FromString(username);
 	if (pValue == NULL) {
 		slog_error(client, "Python module <%s>: out of memory", py_module);
 		goto finish;
 	}
 	PyTuple_SetItem(pArgs, 0, pValue);
-	pValue = PyString_FromString(query_str);
+	pValue = PyUnicode_FromString(query_str);
 	if (pValue == NULL) {
 		slog_error(client, "Python module <%s>: out of memory", py_module);
 		goto finish;
@@ -113,8 +113,8 @@ char *pycall(PgSocket *client, char *username, char *query_str, char *py_file,
 				py_function);
 		goto finish;
 	}
-	if (PyString_Check(pValue)) {
-		res = strdup(PyString_AsString(pValue));
+	if (PyUnicode_Check(pValue)) {
+		res = strdup(PyUnicode_AsEncodedString(pValue, "UTF-8", "strict"));
 	} else {
 		res = NULL;
 	}
@@ -122,7 +122,7 @@ char *pycall(PgSocket *client, char *username, char *query_str, char *py_file,
 	finish:
 	if (PyErr_Occurred()) {
 		PyErr_Fetch(&ptype, &perror, &ptraceback);
-		slog_error(client, "Python error: %s", PyString_AsString(perror));
+		slog_error(client, "Python error: %s", PyUnicode_AsEncodedString(perror, "UTF-8", "strict"));
 	}
 	free(py_pathtmp);
 	free(py_filetmp);
