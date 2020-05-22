@@ -114,7 +114,15 @@ char *pycall(PgSocket *client, char *username, char *query_str, char *py_file,
 		goto finish;
 	}
 	if (PyUnicode_Check(pValue)) {
-		res = strdup(PyUnicode_AsEncodedString(pValue, "UTF-8", "strict"));
+		//res = strdup(PyUnicode_AsEncodedString(pValue, "UTF-8", "strict"));
+		PyObject * temp_bytes = PyUnicode_AsEncodedString(pValue, "UTF-8", "strict"); // Owned reference
+		if (temp_bytes != NULL) {
+			res = PyBytes_AS_STRING(temp_bytes); // Borrowed pointer
+			res = strdup(res);
+			Py_DECREF(temp_bytes);
+		} else {
+			// TODO: Handle encoding error.
+		}
 	} else {
 		res = NULL;
 	}
