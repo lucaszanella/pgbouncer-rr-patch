@@ -38,7 +38,7 @@
  	include/common/unicode_norm_table.h
  
 -pgbouncer_CPPFLAGS = -Iinclude $(CARES_CFLAGS) $(LIBEVENT_CFLAGS) $(TLS_CPPFLAGS)
-+python_CPPFLAGS = -I/usr/include/python2.6 -I/usr/include/python2.6
++python_CPPFLAGS = -I/usr/include/python3.6 -I/usr/include/python3.6
 +pgbouncer_CPPFLAGS = -Iinclude $(CARES_CFLAGS) $(LIBEVENT_CFLAGS) $(TLS_CPPFLAGS) $(python_CPPFLAGS)
  
  # include libusual sources directly
