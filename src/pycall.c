@@ -130,7 +130,18 @@ char *pycall(PgSocket *client, char *username, char *query_str, char *py_file,
 	finish:
 	if (PyErr_Occurred()) {
 		PyErr_Fetch(&ptype, &perror, &ptraceback);
-		slog_error(client, "Python error: %s", PyUnicode_AsEncodedString(perror, "UTF-8", "strict"));
+		PyObject * temp_bytes = PyUnicode_AsEncodedString(perror, "UTF-8", "strict"); // Owned reference
+		if (temp_bytes != NULL) {
+			char* res;
+			res = PyBytes_AS_STRING(temp_bytes); // Borrowed pointer
+			res = strdup(res);
+			slog_error(client, "Python error: %s", res);
+			Py_DECREF(temp_bytes);
+		} else {
+			// TODO: Handle encoding error.
+			slog_error(client, "Python error: %s", "error decoding python error");
+		}
+		
 	}
 	free(py_pathtmp);
 	free(py_filetmp);
